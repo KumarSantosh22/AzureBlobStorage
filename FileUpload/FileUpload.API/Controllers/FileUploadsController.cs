@@ -1,5 +1,6 @@
 ﻿using FileUpload.Concerns.Core;
 using FileUpload.Services.Contracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FileUpload.API.Controllers
@@ -18,7 +19,14 @@ namespace FileUpload.API.Controllers
         [HttpPost]
         public async Task<ActionResult<string>> UploadAsync([FromBody] BlobFile file)
         {
-            return Ok(await fileUploadContract.UploadFileAsync(file));
+            try
+            {
+                return Ok(await fileUploadContract.UploadFileAsync(file));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }

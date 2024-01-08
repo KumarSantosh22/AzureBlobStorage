@@ -16,8 +16,11 @@ namespace FileUpload.Services.Providers
 
         public string UploadFile(BlobFile file)
         {
-            BlobClient blob = blobContainerClient.GetBlobClient(file.FileName);
-            blob.Upload(file.FileStream, new BlobHttpHeaders { ContentType = file.ContentType });
+            BlobClient blob = blobContainerClient.GetBlobClient(file.Name);
+            BlobContainerInfo response = blobContainerClient.CreateIfNotExists();
+            //blobContainerClient.SetAccessPolicy(PublicAccessType.Blob);
+
+            blob.Upload(GetStream(file.Content), new BlobHttpHeaders { ContentType = file.ContentType });
             return blob.Uri.ToString();
         }
 
@@ -33,8 +36,11 @@ namespace FileUpload.Services.Providers
 
         public async Task<string> UploadFileAsync(BlobFile file)
         {
-            BlobClient blob = blobContainerClient.GetBlobClient(file.FileName);
-            await blob.UploadAsync(file.FileStream, new BlobHttpHeaders { ContentType = file.ContentType });
+            BlobClient blob = blobContainerClient.GetBlobClient(file.Name);
+            Azure.Response<BlobContainerInfo> response = await blobContainerClient.CreateIfNotExistsAsync();
+            //await blobContainerClient.SetAccessPolicyAsync(PublicAccessType.Blob);
+            
+            await blob.UploadAsync(GetStream(file.Content), new BlobHttpHeaders { ContentType = file.ContentType });
             return blob.Uri.ToString();
         }        
 
@@ -46,6 +52,12 @@ namespace FileUpload.Services.Providers
                 result.Add(UploadFileAsync(file).GetAwaiter().GetResult());
             });
             return result;
+        }
+
+        private Stream GetStream(string content)
+        {
+            byte[] b = Convert.FromBase64String(content);
+            return new MemoryStream(b);
         }
     }
 }
