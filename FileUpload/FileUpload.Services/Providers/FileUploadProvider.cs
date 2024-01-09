@@ -54,6 +54,21 @@ namespace FileUpload.Services.Providers
             return result;
         }
 
+        public async Task<bool> DeleteFileAsync(string name)
+        {
+            BlobClient blob = blobContainerClient.GetBlobClient(name);
+            Azure.Response<bool> response = await blob.DeleteIfExistsAsync();
+            return response.Value;
+        }
+
+        public async Task<Stream> GetBlobAsync(string name)
+        {
+            BlobClient client = blobContainerClient.GetBlobClient(name);
+            Azure.Response<BlobDownloadResult> response = await client.DownloadContentAsync();
+            BlobDownloadResult value = response.Value;
+            return value.Content.ToStream();
+        }
+
         private Stream GetStream(string content)
         {
             byte[] b = Convert.FromBase64String(content);

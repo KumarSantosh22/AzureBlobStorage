@@ -11,5 +11,9 @@ namespace FileUpload.Services.Contracts
         Task<string> UploadFileAsync(BlobFile file);
 
         Task<List<string>> UploadFilesAsync(List<BlobFile> files);
+
+        Task<bool> DeleteFileAsync(string name);
+
+        Task<Stream> GetBlobAsync(string name);
     }
 }
